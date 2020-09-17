@@ -15,8 +15,18 @@
 // main.js
 
 ``` javascript
+import Vue from 'vue'
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 import myForm from 'element-form-plugin'
+import App from './App.vue'
+
+Vue.use(ElementUI)
 Vue.use(myForm)
+
+new Vue({
+  render: h => h(App),
+}).$mount('#app')
 ```
 
 // index.vue
