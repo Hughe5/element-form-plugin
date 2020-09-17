@@ -1,6 +1,6 @@
 {
   "name": "element-form-plugin",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "src/index.js",
   "files": [
     "src"
@@ -38,5 +38,6 @@
     "less": "^3.0.4",
     "less-loader": "^5.0.0",
     "vue-template-compiler": "^2.6.11"
-  }
+  },
+  "license": "ISC"
 }
