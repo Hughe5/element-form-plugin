@@ -11,6 +11,10 @@
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hughe5/element-form-plugin.git"
+  },
   "keywords": [
     "eleme",
     "vue",
