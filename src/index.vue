@@ -7,7 +7,7 @@
           <el-option v-for="(option, i) in item.options" :key="i" :label="option.label" :value="option.value"></el-option>
         </el-select>
         <el-input v-if="item.type.toLowerCase() === 'input' && !item.isHidden" placeholder="请输入" v-model="form[item.value]" :clearable="item.defaultValue === undefined" @change="item.change">
-          <el-select v-if="item.prepend && typeof item.prepend.type === 'string' && item.prepend.type.toLowerCase() === 'select' && !item.prepend.isHidden" v-model="form[item.prepend.value]" slot="prepend" placeholder="请选择" :class="item.prepend.class" :clearable="!item.prepend.defaultValue" @change="item.prepend.change">
+          <el-select v-if="item.prepend && typeof item.prepend.type === 'string' && item.prepend.type.toLowerCase() === 'select' && !item.prepend.isHidden" v-model="form[item.prepend.value]" slot="prepend" placeholder="请选择" :class="item.prepend.class" :clearable="item.prepend.defaultValue === undefined" @change="item.prepend.change">
             <el-option v-for="(option, i) in item.prepend.options" :key="i" :label="option.label" :value="option.value"></el-option>
           </el-select>
         </el-input>
