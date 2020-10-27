@@ -1,5 +1,5 @@
 <script>
-import { Input, Select, Option } from 'element-ui'
+import { Form, FormItem, DateTimePicker, Select, Option, Input, Cascader, Button, } from 'element-ui'
 export default {
   data () {
     return {
@@ -10,63 +10,242 @@ export default {
   computed: {
     JSON () {
       return {
-        tag: Input,
+        tag: Form,
         attrs: {
-          placeholder: '请输入',
-          ':value': this.name,
-          '@change': (value) => {
-            console.log(value)
-          },
-          '@input': (value) => {
-            this.name = value
+          class: 'my-form',
+          ':inline': this.inline,
+          ':model': this.form,
+          size: 'small',
+          '@submit.native': function (event) {
+            event.preventDefault()
           }
         },
-        children: [
-          {
-            tag: Select,
+        children: this.children
+      }
+    },
+    children () {
+      const res = []
+      for (let [index, item] of Object.entries(this.items)) {
+        if (item.type.toLowerCase() === 'datetimepicker') {
+          res.push({
+            tag: FormItem,
             attrs: {
-              slot: 'prepend',
-              ':value': this.type,
-              class: 'my-select',
-              '@input': (value) => {
-                this.type = value
+              ':label': item.label,
+              style: {
+                display: (index <= this.position || (index > this.position && !this.hideMore)) && !item.isHidden ? (this.inline ? 'inline-block' : 'block') : 'none'
               }
             },
             children: [
               {
-                tag: Option,
+                tag: DateTimePicker,
                 attrs: {
-                  label: 'a',
-                  value: '1'
+                  'v-if': !item.isHidden,
+                  ':value': this.form[item.value],
+                  type: 'datetimerange',
+                  ':picker-options': this.pickerOptions,
+                  'range-separator': '至',
+                  'start-placeholder': '开始日期',
+                  'end-placeholder': '结束日期',
+                  ':clearable': item.defaultValue === undefined,
+                  '@change': item.change,
+                  '@input': (value) => {
+                    this.form[item.value] = value
+                  }
                 }
-              },
-              {
-                tag: Option,
-                attrs: {
-                  label: 'b',
-                  value: '2'
-                }
-              },
+              }
             ]
-          }
-        ]
+          })
+        }
+        if (item.type.toLowerCase() === 'select') {
+          res.push({
+            tag: FormItem,
+            attrs: {
+              ':label': item.label,
+              style: {
+                display: (index <= this.position || (index > this.position && !this.hideMore)) && !item.isHidden ? (this.inline ? 'inline-block' : 'block') : 'none'
+              }
+            },
+            children: [
+              {
+                tag: Select,
+                attrs: {
+                  'v-if': !item.isHidden,
+                  ':value': this.form[item.value],
+                  placeholder: '请选择',
+                  ':clearable': item.defaultValue === undefined && !item.disclearable,
+                  '@change': item.change,
+                  '@input': (value) => {
+                    this.form[item.value] = value
+                  }
+                },
+                children: item.options.map(option => {
+                  return {
+                    tag: Option,
+                    attrs: {
+                      ':label': option.label,
+                      ':value': option.value
+                    }
+                  }
+                })
+              }
+            ]
+          })
+        }
+        if (item.type.toLowerCase() === 'input') {
+          res.push({
+            tag: FormItem,
+            attrs: {
+              ':label': item.label,
+              style: {
+                display: (index <= this.position || (index > this.position && !this.hideMore)) && !item.isHidden ? (this.inline ? 'inline-block' : 'block') : 'none'
+              }
+            },
+            children: [
+              {
+                tag: Input,
+                attrs: {
+                  'v-if': !item.isHidden,
+                  ':value': this.form[item.value],
+                  placeholder: '请输入',
+                  ':clearable': item.defaultValue === undefined,
+                  '@change': item.change,
+                  '@input': (value) => {
+                    this.form[item.value] = value
+                  }
+                },
+                children: item.prepend && typeof item.prepend.type === 'string' && item.prepend.type.toLowerCase() === 'select' ?
+                  [
+                    {
+                      tag: Select,
+                      attrs: {
+                        'v-if': !item.prepend.isHidden,
+                        ':value': this.form[item.prepend.value],
+                        slot: 'prepend',
+                        placeholder: '请选择',
+                        class: item.prepend.class,
+                        ':clearable': item.prepend.defaultValue === undefined,
+                        '@change': item.prepend.change,
+                        '@input': (value) => {
+                          this.form[item.prepend.value] = value
+                        }
+                      },
+                      children: item.prepend.options.map(option => ({
+                          tag: Option,
+                          attrs: {
+                            ':label': option.label,
+                            ':value': option.value
+                          }
+                        })
+                      )
+                    }
+                  ] :
+                  undefined
+              }
+            ]
+          })
+        }
+        if (item.type.toLowerCase() === 'cascader') {
+          res.push({
+            tag: FormItem,
+            attrs: {
+              ':label': item.label,
+              style: {
+                display: (index <= this.position || (index > this.position && !this.hideMore)) && !item.isHidden ? (this.inline ? 'inline-block' : 'block') : 'none'
+              }
+            },
+            children: [
+              {
+                tag: Cascader,
+                attrs: {
+                  'v-if': !item.isHidden,
+                  ':value': this.form[item.value],
+                  ':options': item.options,
+                  ':props': item.props,
+                  ':clearable': item.defaultValue === undefined,
+                  '@change': item.change,
+                  '@input': (value) => {
+                    this.form[item.value] = value
+                  }
+                }
+              }
+            ]
+          })
+        }
+        if (item.type === 'buttons') {
+          const arr = this.$slots.buttons && this.$slots.buttons.length ? this.$slots.buttons : [
+            {
+              tag: Button,
+              attrs: {
+                class: 'button',
+                '@click': this.onSubmit,
+                size: 'small'
+              },
+              children: '查询'
+            },
+            {
+              tag: Button,
+              attrs: {
+                class: 'button',
+                '@click': this.onReset,
+                size: 'small'
+              },
+              children: '重置'
+            },
+          ]
+          res.push(...arr, {
+            tag: 'span',
+            attrs: {
+              class: 'more-conditions',
+              'v-if': this.canHideMore,
+              '@click': () => {
+                this.hideMore = !this.hideMore
+              }
+            },
+            children: [
+              '更多条件',
+              {
+                tag: 'i',
+                attrs: {
+                  class: this.hideMore ? 'el-icon-arrow-down el-icon--right' : 'el-icon-arrow-up el-icon--right'
+                }
+              }
+            ]
+          }, {
+            tag: 'br',
+            attrs: {
+              'v-if': this.canHideMore
+            }
+          })
+        }
       }
+      return res
+    },
+    VNode () {
+      const node = this.$createElement()
+      return node.constructor
     }
   },
   render (h) {
-    const AST = this.JSON2AST(this.JSON)
-    const handler = (AST) => {
-      return h(
-        AST.tag,
-        AST.data,
-        Array.isArray(AST.children) ?
-        AST.children.map((child, index) => {
-          child.data = Object.assign({}, { key: index }, child.data)
-          return handler(child)
-        }) :
-        AST.children
+    const handler = ({ tag, data, children }) => {
+      const node = h(
+        tag,
+        data,
+        Array.isArray(children)
+          ? children.filter(child => child !== undefined).map((child, index) => {
+            child.data = Object.assign({}, { key: index }, child.data)
+            if (child.tag) {
+              return handler(child)
+            } else if (child.text && !child.isComment) {
+              return child.text
+            }
+            return handler({ children: child.text })
+          })
+          : children
       )
+      if (!tag) node.text = children
+      return node
     }
+    const AST = this.JSON2AST(this.JSON)
     return handler(AST)
   },
   methods: {
@@ -74,37 +253,45 @@ export default {
       const reg = new RegExp(`^${prefix}`)
       return str.replace(reg, '')
     },
-    JSON2AST ({ tag, attrs = {}, children }) {
-      
+    deleteSuffix (str, suffix) {
+      return str.replace(`.${suffix}`, '')
+    },
+    JSON2AST (JSON) {
+
+      if (JSON instanceof this.VNode) return JSON
+
+      const { tag, attrs, children } = Object.assign({ attrs: {} }, JSON)
+
+      if (Object.prototype.hasOwnProperty.call(attrs, 'v-if') && !attrs['v-if']) return
+
       const AST = {
         tag,
-        data: {
-          attrs: {},
-          props: {},
-          on: {},
-        }
+        data: {}
       }
 
       for (let [key, value] of Object.entries(attrs)) {
         if (key.startsWith(':')) {
           key = this.deletePrefix(key, ':')
-          AST.data.props[key] = value
+          AST.data.props = Object.assign({}, AST.data.props, { [key]: value })
         } else if (key.startsWith('@')) {
           key = this.deletePrefix(key, '@')
-          AST.data.on[key] = value
-        } else if (['slot', 'class'].includes(key)) {
+          if (key.includes('native')) {
+            key = this.deleteSuffix(key, 'native')
+            AST.data.nativeOn = Object.assign({}, AST.data.nativeOn, { [key]: value })
+          } else {
+            AST.data.on = Object.assign({}, AST.data.on, { [key]: value })
+          }
+        } else if (['class', 'style', 'slot'].includes(key)) {
           AST.data[key] = value
         } else {
-          AST.data.attrs[key] = value
+          AST.data.attrs = Object.assign({}, AST.data.attrs, { [key]: value })
         }
       }
 
-      AST.children = Array.isArray(children) ?
-        children.map(this.JSON2AST) :
-        children
+      AST.children = Array.isArray(children) ? children.map(this.JSON2AST) : children
 
       return AST
-    }
+    },
   }
 }
 </script>

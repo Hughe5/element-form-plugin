@@ -3,15 +3,16 @@
     <template v-for="(item, index) in items">
       <el-form-item :key="2 * index" :label="item.label" v-show="(index <= position || (index > position && !hideMore)) && !item.isHidden">
         <el-date-picker v-if="item.type.toLowerCase() === 'datetimepicker' && !item.isHidden" v-model="form[item.value]" type="datetimerange" :picker-options="pickerOptions" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :clearable="item.defaultValue === undefined" @change="item.change"></el-date-picker>
-        <el-select v-if="item.type.toLowerCase() === 'select' && !item.isHidden" v-model="form[item.value]" placeholder="请选择" :clearable="item.defaultValue === undefined && !item.disclearable" @change="item.change">
+        <el-select v-if="item.type.toLowerCase() === 'select' && !item.isHidden" v-model="form[item.value]" :placeholder="item.placeholder || '请选择'" :clearable="item.defaultValue === undefined && !item.disclearable" @change="item.change">
           <el-option v-for="(option, i) in item.options" :key="i" :label="option.label" :value="option.value"></el-option>
         </el-select>
-        <el-input v-if="item.type.toLowerCase() === 'input' && !item.isHidden" placeholder="请输入" v-model="form[item.value]" :clearable="item.defaultValue === undefined" @change="item.change">
-          <el-select v-if="item.prepend && typeof item.prepend.type === 'string' && item.prepend.type.toLowerCase() === 'select' && !item.prepend.isHidden" v-model="form[item.prepend.value]" slot="prepend" placeholder="请选择" :class="item.prepend.class" :clearable="item.prepend.defaultValue === undefined" @change="item.prepend.change">
+        <el-input v-if="item.type.toLowerCase() === 'input' && !item.isHidden" :placeholder="item.placeholder || '请输入'" v-model="form[item.value]" :clearable="item.defaultValue === undefined" @change="item.change">
+          <el-select v-if="item.prepend && typeof item.prepend.type === 'string' && item.prepend.type.toLowerCase() === 'select' && !item.prepend.isHidden" v-model="form[item.prepend.value]" slot="prepend" :placeholder="item.placeholder || '请选择'" :class="item.prepend.class" :clearable="item.prepend.defaultValue === undefined" @change="item.prepend.change">
             <el-option v-for="(option, i) in item.prepend.options" :key="i" :label="option.label" :value="option.value"></el-option>
           </el-select>
         </el-input>
         <el-cascader v-if="item.type.toLowerCase() === 'cascader' && !item.isHidden" v-model="form[item.value]" :options="item.options" :props="item.props" :clearable="item.defaultValue === undefined" @change="item.change"></el-cascader>
+        <el-input-number v-if="item.type.toLowerCase() === 'inputnumber' && !item.isHidden" v-model="form[item.value]" :controls-position="item.controlsPosition" :min="item.min" :max="item.max" @change="item.change"></el-input-number>
         <template v-if="item.type === 'buttons'">
           <slot name="buttons">
             <el-button class="button" @click="onSubmit">查询</el-button>
