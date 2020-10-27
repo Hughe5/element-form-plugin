@@ -127,7 +127,7 @@ export default {
     handleItem (item) {
       const type = item.type.toLowerCase()
       const handler = this.getHandlerByType[type]
-      handler && handler(item)
+      handler?.(item)
       this.setChangeCallback(item)
     },
     buildItems (items) {
