@@ -11,9 +11,34 @@ export default {
           tag: 'Input',
           label: '问题描述',
           value: 'value6',
-          defaultValue: '9'
+          defaultValue: '9',
+          change: (value) => {
+            console.log(value, 'vlaue')
+            if (value == 6) {
+              const i = this.items.findIndex(e => e.id === 'tt')
+              this.$set(this.items[i], 'isHidden', true)
+            } else {
+              const i = this.items.findIndex(e => e.id === 'tt')
+              this.$set(this.items[i], 'isHidden', false)
+            }
+          },
+          prepend: {
+            tag: 'Select',
+            value: 'yu',
+            options: [
+              {
+                label: 'a',
+                value: '1'
+              },
+              {
+                label: 'b',
+                value: '2'
+              }
+            ]
+          }
         },
         {
+          id: 'tt',
           tag: 'abc',
           value: 'abc'
         },
