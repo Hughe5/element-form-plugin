@@ -1,7 +1,7 @@
-import myForm from './index.vue'
+import elementForm from './index.vue'
 
-myForm.install = function (Vue) {
-  Vue.component(myForm.name, myForm)
+elementForm.install = function (Vue) {
+  Vue.component(elementForm.name, elementForm)
 }
 
-export default myForm
+export default elementForm
