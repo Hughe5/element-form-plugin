@@ -1,42 +1,13 @@
-<template>
-  <el-form class="my-form" :inline="inline" :model="form" size="small" @submit.native.prevent>
-    <template v-for="(item, index) in items">
-      <el-form-item :key="2 * index" :label="item.label" v-show="(index <= position || (index > position && !hideMore)) && !item.isHidden">
-        <el-date-picker v-if="item.type.toLowerCase() === 'datetimepicker' && !item.isHidden" v-model="form[item.value]" type="datetimerange" :picker-options="pickerOptions" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :clearable="item.defaultValue === undefined" @change="item.change"></el-date-picker>
-        <el-select v-if="item.type.toLowerCase() === 'select' && !item.isHidden" v-model="form[item.value]" :placeholder="item.placeholder || '请选择'" :clearable="item.defaultValue === undefined && !item.disclearable" @change="item.change">
-          <el-option v-for="(option, i) in item.options" :key="i" :label="option.label" :value="option.value"></el-option>
-        </el-select>
-        <el-input v-if="item.type.toLowerCase() === 'input' && !item.isHidden" :placeholder="item.placeholder || '请输入'" v-model="form[item.value]" :clearable="item.defaultValue === undefined" @change="item.change">
-          <el-select v-if="item.prepend && typeof item.prepend.type === 'string' && item.prepend.type.toLowerCase() === 'select' && !item.prepend.isHidden" v-model="form[item.prepend.value]" slot="prepend" :placeholder="item.placeholder || '请选择'" :class="item.prepend.class" :clearable="item.prepend.defaultValue === undefined" @change="item.prepend.change">
-            <el-option v-for="(option, i) in item.prepend.options" :key="i" :label="option.label" :value="option.value"></el-option>
-          </el-select>
-        </el-input>
-        <el-cascader v-if="item.type.toLowerCase() === 'cascader' && !item.isHidden" v-model="form[item.value]" :options="item.options" :props="item.props" :clearable="item.defaultValue === undefined" @change="item.change"></el-cascader>
-        <el-input-number v-if="item.type.toLowerCase() === 'inputnumber' && !item.isHidden" v-model="form[item.value]" :controls-position="item.controlsPosition" :min="item.min" :max="item.max" @change="item.change"></el-input-number>
-        <template v-if="item.type === 'buttons'">
-          <slot name="buttons">
-            <el-button class="button" @click="onSubmit">查询</el-button>
-            <el-button class="button" @click="onReset">重置</el-button>
-          </slot>
-          <span class="more-conditions" v-if="canHideMore" @click="hideMore = !hideMore">更多条件<i :class="hideMore ? 'el-icon-arrow-down el-icon--right' : 'el-icon-arrow-up el-icon--right'"></i></span>
-        </template>
-      </el-form-item>
-      <br :key="2 * index + 1" v-if="canHideMore && index === position" />
-    </template>
-  </el-form>
-</template>
-
 <script>
-const defaultConfig = {
-  items: [],
-}
+import { Form, FormItem, DateTimePicker, Select, Option, Input, Cascader, Button, } from 'element-ui'
+import { isPlainObj, render, } from './utils'
 export default {
-  name: 'my-form',
+  name: 'element-form',
   props: {
     initItems: {
       type: Array,
       default: function () {
-        return defaultConfig.items
+        return []
       },
     },
     initPosition: {
@@ -87,17 +58,180 @@ export default {
     canHideMore () {
       return this.position < this.items.length - 1
     },
-    getHandlerByType () {
+    getHandlerByTag () {
       return {
-        select: this.handleSelect,
-        input: this.handleInput,
-        cascader: this.handleCascader,
+        'select': this.handleSelect,
+        'input': this.handleInput,
+        'cascader': this.handleCascader,
+      }
+    },
+    JSON () {
+      return {
+        tag: Form,
+        attrs: {
+          class: 'element-form',
+          ':inline': this.inline,
+          ':model': this.form,
+          size: 'small',
+          '@submit.native': function (event) {
+            event.preventDefault()
+          }
+        },
+        children: this.items.map((item, index) => {
+          const formItem = {
+            tag: FormItem,
+            attrs: {
+              ':label': item.label,
+              style: {
+                display: (index <= this.position || (index > this.position && !this.hideMore)) && !item.isHidden
+                  ? (this.inline ? 'inline-block' : 'block')
+                  : 'none'
+              }
+            },
+            children: this.generateComponentsByTag(item)
+          }
+          return item.tag.toLowerCase() === 'buttons'
+            ? [
+                formItem,
+                {
+                  tag: 'div',
+                  attrs: {
+                    class: 'more-conditions',
+                    'v-if': this.canHideMore,
+                    '@click': () => {
+                      this.hideMore = !this.hideMore
+                    }
+                  },
+                  children: [
+                    {
+                      tag: 'span',
+                      children: '更多条件'
+                    },
+                    {
+                      tag: 'i',
+                      attrs: {
+                        class: this.hideMore
+                          ? 'el-icon-arrow-down el-icon--right'
+                          : 'el-icon-arrow-up el-icon--right'
+                      }
+                    }
+                  ]
+                },
+                {
+                  tag: 'br',
+                  attrs: {
+                    'v-if': this.canHideMore
+                  }
+                }
+              ]
+            : formItem
+        }).flat()
       }
     }
   },
+  render (h) {
+    return render(h, this.JSON)
+  },
   methods: {
-    isPlainObj (val) {
-      return Object.prototype.toString.call(val) === '[object Object]'
+    generateComponentsByTag (item) {
+      switch (item.tag.toLowerCase()) {
+        case 'datetimepicker':
+          return [{
+            tag: DateTimePicker,
+            attrs: {
+              'v-if': !item.isHidden,
+              ':value': this.form[item.value],
+              '@input': (value) => {
+                this.form[item.value] = value
+              },
+              type: 'datetimerange',
+              ':picker-options': this.pickerOptions,
+              'range-separator': '至',
+              'start-placeholder': '开始日期',
+              'end-placeholder': '结束日期',
+              ':clearable': item.defaultValue === undefined,
+              '@change': item.change,
+            }
+          }]
+        case 'select':
+          return [{
+            tag: Select,
+            attrs: {
+              'v-if': !item.isHidden,
+              ':value': this.form[item.value],
+              '@input': (value) => {
+                this.form[item.value] = value
+              },
+              placeholder: '请选择',
+              ':clearable': item.defaultValue === undefined && !item.disclearable,
+              '@change': item.change,
+            },
+            children: (item.options || []).map(option => {
+              return {
+                tag: Option,
+                attrs: {
+                  ':label': option.label,
+                  ':value': option.value
+                }
+              }
+            })
+          }]
+        case 'cascader':
+          return [{
+            tag: Cascader,
+            attrs: {
+              'v-if': !item.isHidden,
+              ':value': this.form[item.value],
+              '@input': (value) => {
+                this.form[item.value] = value
+              },
+              ':options': item.options,
+              ':props': item.props,
+              ':clearable': item.defaultValue === undefined,
+              '@change': item.change,
+            }
+          }]
+        case 'input':
+          return [{
+            tag: Input,
+            attrs: {
+              'v-if': !item.isHidden,
+              ':value': this.form[item.value],
+              '@input': (value) => {
+                this.form[item.value] = value
+              },
+              placeholder: '请输入',
+              ':clearable': item.defaultValue === undefined,
+              '@change': item.change,
+            },
+            children: item.prepend && typeof item.prepend.tag === 'string' && item.prepend.tag.toLowerCase() === 'select'
+              ? [ this.generateComponentByTag(item.prepend) ]
+              : undefined
+          }]
+        case 'buttons':
+          return this.$slots.buttons || [{
+            tag: Button,
+            attrs: {
+              class: 'button',
+              '@click': this.onSubmit,
+              size: 'small'
+            },
+            children: '查询'
+          }, {
+            tag: Button,
+            attrs: {
+              class: 'button',
+              '@click': this.onReset,
+              size: 'small'
+            },
+            children: '重置'
+          }]
+        default:
+          return [{
+            tag: 'span',
+            children: `暂未支持${item.tag}`
+          }]
+      }
     },
     handleSelect (item) {
       if (Array.isArray(item.options)) {
@@ -107,7 +241,7 @@ export default {
       }
     },
     checkRequiredProp (item) {
-      return item.type && typeof item.type === 'string' && item.value && typeof item.value === 'string'
+      return item.tag && typeof item.tag === 'string' && item.value && typeof item.value === 'string'
     },
     handleInput (item) {
       if (item.prepend) {
@@ -115,9 +249,12 @@ export default {
       }
     },
     handleCascader (item) {
-      if (!this.isPlainObj(item.props)) {
+      if (!isPlainObj(item.props)) {
         item.props = {}
       }
+    },
+    setReactiveProp (item) {
+      this.$set(this.form, item.value, item.defaultValue)
     },
     setChangeCallback (item) {
       if (typeof item.change !== 'function') {
@@ -125,16 +262,16 @@ export default {
       }
     },
     handleItem (item) {
-      const type = item.type.toLowerCase()
-      const handler = this.getHandlerByType[type]
+      const tag = item.tag.toLowerCase()
+      const handler = this.getHandlerByTag[tag]
       handler?.(item)
+      this.setReactiveProp(item)
       this.setChangeCallback(item)
     },
     buildItems (items) {
       items = items.filter(this.checkRequiredProp)
       items.forEach(this.handleItem)
       this.addButtons(items)
-      this.setDefaultVal(items)
       return items
     },
     handlePosition (items, position = items.length) {
@@ -142,20 +279,20 @@ export default {
     },
     addButtons (items) {
       this.handlePosition(items, this.position)
-      items.splice(this.position, 0, { type: 'buttons' })
-    },
-    setDefaultVal (items) {
-      const setVal = item => item.defaultValue !== undefined && this.$set(this.form, item.value, item.defaultValue)
-      for (let item of items) {
-        setVal(item)
-        item.prepend && setVal(item.prepend)
-      }
+      items.splice(this.position, 0, { tag: 'buttons' })
     },
     getFields () {
       return this.form
     },
     onSubmit () {
       this.$emit('search', this.getFields())
+    },
+    setDefaultVal () {
+      const setVal = item => item.value && this.$set(this.form, item.value, item.defaultValue)
+      for (let item of this.items) {
+        setVal(item)
+        item.prepend && setVal(item.prepend)
+      }
     },
     resetFields () {
       this.form = {}
@@ -171,7 +308,7 @@ export default {
 
 <style lang="less" scoped>
   @blue: #4A82F7;
-  .my-form {
+  .element-form {
     background: #fff;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -184,7 +321,9 @@ export default {
     vertical-align: top; // 去掉垂直方向的间隙
   }
   .more-conditions {
-    margin-left: 10px;
+    display: inline-block;
+    height: 32px;
+    line-height: 32px;
     color: @blue;
     cursor: pointer;
     -moz-user-select: none;
@@ -196,7 +335,7 @@ export default {
 
 <style lang="less">
   @blue: #4A82F7;
-  .my-form {
+  .element-form {
     .el-form-item {
       margin-right: 0;
       margin-bottom: 10px;

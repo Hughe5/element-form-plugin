@@ -18,11 +18,11 @@
 import Vue from 'vue'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import myForm from 'element-form-plugin'
+import elementForm from 'element-form-plugin'
 import App from './App.vue'
 
 Vue.use(ElementUI)
-Vue.use(myForm)
+Vue.use(elementForm)
 
 new Vue({
   render: h => h(App),
@@ -32,13 +32,13 @@ new Vue({
 // index.vue
 
 ``` html
-<my-form :initItems="items">
+<element-form :initItems="items">
   <template #buttons>
     <el-button type="primary" @click="save">保存</el-button>
   </template>
-</my-form>
-<!-- <my-form :initItems="items" :initPosition="position" :inline="true" /> -->
-<!-- <my-form :initItems="items" /> -->
+</element-form>
+<!-- <element-form :initItems="items" :initPosition="position" :inline="true" /> -->
+<!-- <element-form :initItems="items" /> -->
 
 <script>
 export default {
