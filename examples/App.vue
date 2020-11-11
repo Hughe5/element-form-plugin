@@ -24,6 +24,7 @@ export default {
           },
           prepend: {
             tag: 'Select',
+            class: 'my-select',
             value: 'yu',
             options: [
               {
@@ -86,3 +87,9 @@ export default {
   }
 }
 </script>
+
+<style lang="less">
+  .my-select {
+    width: 172px;
+  }
+</style>

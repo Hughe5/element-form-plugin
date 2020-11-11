@@ -153,6 +153,7 @@ export default {
                 ':clearable': item.defaultValue === undefined,
                 '@change': item.change,
                 slot: item.slot,
+                class: item.class,
               }
             }
           ]
@@ -170,6 +171,7 @@ export default {
                 ':clearable': item.defaultValue === undefined && !item.disclearable,
                 '@change': item.change,
                 slot: item.slot,
+                class: item.class,
               },
               children: (item.options || []).map(option => {
                 return {
@@ -197,6 +199,7 @@ export default {
                 ':clearable': item.defaultValue === undefined,
                 '@change': item.change,
                 slot: item.slot,
+                class: item.class,
               }
             }
           ]
@@ -214,6 +217,7 @@ export default {
                 ':clearable': item.defaultValue === undefined,
                 '@change': item.change,
                 slot: item.slot,
+                class: item.class,
               },
               children: item.prepend && typeof item.prepend.tag === 'string' && item.prepend.tag.toLowerCase() === 'select'
                 ? this.generateComponentsByTag({ ...item.prepend, slot: 'prepend' })
