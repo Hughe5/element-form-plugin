@@ -1,7 +1,5 @@
 <script>
-// TODO：render函数里要不要处理v-if
-// TODO：统一维护'select'等枚举值
-import { Form, FormItem, DateTimePicker, Select, Option, Input, Cascader, Button, } from 'element-ui'
+import { Form, FormItem, DatePicker, Select, Option, Input, Cascader, Button, } from 'element-ui'
 import { isPlainObj, render, } from './utils'
 export default {
   name: 'element-form',
@@ -12,7 +10,7 @@ export default {
         return []
       },
     },
-    initPosition: { // buttons的位置
+    initPosition: { // Buttons的位置
       type: Number
     },
     inline: { // 是否换行
@@ -62,9 +60,9 @@ export default {
     },
     getHandlerByTag () { // 表单项对应的处理器
       return {
-        'select': this.handleSelect,
-        'input': this.handleInput,
-        'cascader': this.handleCascader,
+        'Select': this.handleSelect,
+        'Input': this.handleInput,
+        'Cascader': this.handleCascader,
       }
     },
     JSON () { // 用于生成页面的JSON
@@ -93,7 +91,7 @@ export default {
             },
             children: this.generateComponentsByTag(item)
           }
-          return item.tag.toLowerCase() === 'buttons' && this.canHideMore
+          return item.tag === 'Buttons' && this.canHideMore
             ? [ // 表单项后加上操作按钮
                 el,
                 {
@@ -134,13 +132,12 @@ export default {
   methods: {
     // 根据tag生成组件
     generateComponentsByTag (item) {
-      switch (item.tag.toLowerCase()) {
-        case 'datetimepicker':
-          return [
+      switch (item.tag) {
+        case 'DateTimePicker':
+          return item.isHidden ? [] : [
             {
-              tag: DateTimePicker,
+              tag: DatePicker,
               attrs: {
-                'v-if': !item.isHidden,
                 ':value': this.form[item.value],
                 '@input': (value) => {
                   this.form[item.value] = value
@@ -157,12 +154,11 @@ export default {
               }
             }
           ]
-        case 'select':
-          return [
+        case 'Select':
+          return item.isHidden ? [] : [
             {
               tag: Select,
               attrs: {
-                'v-if': !item.isHidden,
                 ':value': this.form[item.value],
                 '@input': (value) => {
                   this.form[item.value] = value
@@ -184,12 +180,11 @@ export default {
               })
             }
           ]
-        case 'cascader':
-          return [
+        case 'Cascader':
+          return item.isHidden ? [] : [
             {
               tag: Cascader,
               attrs: {
-                'v-if': !item.isHidden,
                 ':value': this.form[item.value],
                 '@input': (value) => {
                   this.form[item.value] = value
@@ -203,12 +198,11 @@ export default {
               }
             }
           ]
-        case 'input':
-          return [
+        case 'Input':
+          return item.isHidden ? [] : [
             {
               tag: Input,
               attrs: {
-                'v-if': !item.isHidden,
                 ':value': this.form[item.value],
                 '@input': (value) => {
                   this.form[item.value] = value
@@ -219,13 +213,13 @@ export default {
                 slot: item.slot,
                 class: item.class,
               },
-              children: item.prepend && typeof item.prepend.tag === 'string' && item.prepend.tag.toLowerCase() === 'select'
+              children: item.prepend && item.prepend.tag === 'Select'
                 ? this.generateComponentsByTag({ ...item.prepend, slot: 'prepend' })
                 : undefined
             }
           ]
-        case 'buttons':
-          return this.$slots.buttons || [ // 插槽
+        case 'Buttons':
+          return this.$slots.Buttons || [ // 插槽
             {
               tag: Button,
               attrs: {
@@ -290,7 +284,7 @@ export default {
     },
     // 处理表单项
     handleItem (item) {
-      const tag = item.tag.toLowerCase()
+      const tag = item.tag
       const handler = this.getHandlerByTag[tag] // 获取到表单项对应的处理器
       handler?.(item) // 有则执行
       this.setReactiveProp(item)
@@ -303,14 +297,14 @@ export default {
       this.addButtons(items)
       return items
     },
-    // 处理buttons的位置
-    handlePosition (items, position = items.length) { // 默认把buttons放在末尾
-      this.position = Math.max(position, 0) // 传入负数则按0来处理，即把buttons放在开头
+    // 处理Buttons的位置
+    handlePosition (items, position = items.length) { // 默认把Buttons放在末尾
+      this.position = Math.max(position, 0) // 传入负数则按0来处理，即把Buttons放在开头
     },
-    // 添加buttons
+    // 添加Buttons
     addButtons (items) {
       this.handlePosition(items, this.position)
-      items.splice(this.position, 0, { tag: 'buttons' })
+      items.splice(this.position, 0, { tag: 'Buttons' })
     },
     // 获取表单的数据
     getFields () {

@@ -1,5 +1,8 @@
+const { assign, entries } = Object
+const { toString, hasOwnProperty } = Object.prototype
+
 function isPlainObj (val) {
-  return Object.prototype.toString.call(val) === '[object Object]'
+  return toString.call(val) === '[object Object]'
 }
 
 // 删除前缀
@@ -20,10 +23,10 @@ function JSON2AST (JSON) {
   if (JSON.constructor.name === 'VNode') return JSON
 
   // 给attrs赋默认值，解构JSON
-  const { tag, attrs, children } = Object.assign({ attrs: {} }, JSON)
+  const { tag, attrs, children } = assign({ attrs: {} }, JSON)
 
   // 处理v-if
-  if (Object.prototype.hasOwnProperty.call(attrs, 'v-if') && !attrs['v-if']) return
+  if (hasOwnProperty.call(attrs, 'v-if') && !attrs['v-if']) return
 
   // 定义返回值
   const AST = {
@@ -31,25 +34,25 @@ function JSON2AST (JSON) {
     data: {}
   }
 
-  for (let [key, value] of Object.entries(attrs)) {
+  for (let [key, value] of entries(attrs)) {
     if (key.startsWith(':')) { // 处理v-bind
       key = deletePrefix(key, ':')
       // v-bind放到props里，兼容AST.data.props为undefined的情况
-      AST.data.props = Object.assign({}, AST.data.props, { [key]: value })
+      AST.data.props = assign({}, AST.data.props, { [key]: value })
     } else if (key.startsWith('@')) { // 处理v-on
       key = deletePrefix(key, '@')
       if (key.includes('native')) { // 处理.native修饰符
         key = deleteSuffix(key, 'native')
         // 原生事件放到nativeOn里
-        AST.data.nativeOn = Object.assign({}, AST.data.nativeOn, { [key]: value })
+        AST.data.nativeOn = assign({}, AST.data.nativeOn, { [key]: value })
       } else {
         // 其他事件放到on里
-        AST.data.on = Object.assign({}, AST.data.on, { [key]: value })
+        AST.data.on = assign({}, AST.data.on, { [key]: value })
       }
     } else if (['class', 'style', 'slot'].includes(key)) { // 处理class、style、slot
       AST.data[key] = value
     } else {
-      AST.data.attrs = Object.assign({}, AST.data.attrs, { [key]: value })
+      AST.data.attrs = assign({}, AST.data.attrs, { [key]: value })
     }
   }
 
@@ -69,7 +72,7 @@ function render (h, JSON) {
         ? children
             .filter(child => child !== undefined) // 过滤，v-if产生undefined
             .map((child, index) => {
-              child.data = Object.assign({}, { key: index }, child.data) // 加key，有则不加
+              child.data = assign({}, { key: index }, child.data) // 加key，有则不加
               if (child.tag) { // 标签节点
                 return handler(child)
               } else if (child.text && !child.isComment) { // 文本节点

@@ -33,7 +33,7 @@ new Vue({
 
 ``` html
 <element-form :initItems="items">
-  <template #buttons>
+  <template #Buttons>
     <el-button type="primary" @click="save">保存</el-button>
   </template>
 </element-form>
@@ -64,7 +64,7 @@ export default {
 
 | 参数 | 说明 | 类型 | required | 默认值 |
 | - | - | - | - | - |
-| type | Element里的表单项的英文名，不区分大小写 | string | true | - |
+| tag | Element里的表单项的英文名 | string | true | - |
 | value | 绑定值 | string | true | - |
 | label | 表单项的标签 | string | false | - |
 | options | Select或Cascader的选项的列表，详见options | `Array<object>` | false | - |
@@ -74,7 +74,7 @@ export default {
 | prepend | 复合型输入框，指定前置的内容，详见prepend | object | false | - |
 | props | 级联，配置选项，与Element中的一致 | object | false | - |
 
-<p style="color: #e6a23c">！没有传type和value的元素会被忽略</p>
+<p style="color: #e6a23c">！没有传tag和value的元素会被忽略</p>
 
 - options
 
@@ -110,7 +110,7 @@ options: [
     <td>-</td>
   <tr>
   <tr>
-    <td>type</td>
+    <td>tag</td>
     <td colspan="4">与元素的属性的列表内相同</td>
   <tr>
   <tr>
@@ -139,7 +139,7 @@ options: [
   <tr>
 </table>
 
-<p style="color: #e6a23c">！没有传type和value的prepend会被忽略</p>
+<p style="color: #e6a23c">！没有传tag和value的prepend会被忽略</p>
 
 ### position
 
@@ -166,7 +166,7 @@ options: [
 // items
 [
   {
-    type: 'select',
+    tag: 'Select',
     value: 'region',
     label: '活动区域',
     options: [
@@ -199,4 +199,4 @@ options: [
 
 | name | 说明 |
 | - | - |
-| buttons | 插入至表单内的按钮，默认为“查询”和“重置” |
+| Buttons | 插入至表单内的按钮，默认为“查询”和“重置” |
