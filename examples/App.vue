@@ -40,8 +40,11 @@ export default {
         },
         {
           id: 'tt',
-          tag: 'abc',
-          value: 'abc'
+          tag: 'InputNumber',
+          value: 'abc',
+          controlsPosition: 'right',
+          min: 4,
+          max: 12
         },
         {
           tag: 'Select',

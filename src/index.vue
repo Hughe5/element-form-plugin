@@ -1,5 +1,5 @@
 <script>
-import { Form, FormItem, DatePicker, Select, Option, Input, Cascader, Button, } from 'element-ui'
+import { Form, FormItem, DatePicker, Select, Option, Input, Cascader, Button, InputNumber, } from 'element-ui'
 import { isPlainObj, render, } from './utils'
 export default {
   name: 'element-form',
@@ -216,6 +216,23 @@ export default {
               children: item.prepend && item.prepend.tag === 'Select'
                 ? this.generateComponentsByTag({ ...item.prepend, slot: 'prepend' })
                 : undefined
+            }
+          ]
+        case 'InputNumber':
+          return item.isHidden ? [] : [
+            {
+              tag: InputNumber,
+              attrs: {
+                ':value': this.form[item.value],
+                '@input': (value) => {
+                  this.form[item.value] = value
+                },
+                '@change': item.change,
+                class: item.class,
+                ':min': item.min,
+                ':max': item.max,
+                'controls-position': item.controlsPosition
+              }
             }
           ]
         case 'Buttons':
