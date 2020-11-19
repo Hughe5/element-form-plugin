@@ -1,6 +1,7 @@
 <script>
 import { Form, FormItem, DatePicker, Select, Option, Input, Cascader, Button, InputNumber, } from 'element-ui'
 import { isPlainObj, render, } from './utils'
+const { hasOwnProperty } = Object.prototype
 export default {
   name: 'element-form',
   props: {
@@ -291,7 +292,7 @@ export default {
     },
     // 把表单项绑定的字段加到form上，变成响应式的
     setReactiveProp (item) {
-      Object.prototype.hasOwnProperty.call(this.form, item.value) || this.$set(this.form, item.value, item.defaultValue)
+      hasOwnProperty.call(this.form, item.value) || this.$set(this.form, item.value, item.defaultValue)
     },
     // 设置change事件的回调
     setChangeCallback (item) {
