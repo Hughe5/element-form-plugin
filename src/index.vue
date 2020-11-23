@@ -304,7 +304,7 @@ export default {
     handleItem (item) {
       const tag = item.tag
       const handler = this.getHandlerByTag[tag] // 获取到表单项对应的处理器
-      handler?.(item) // 有则执行
+      handler && handler(item) // 有则执行
       this.setReactiveProp(item)
       this.setChangeCallback(item)
     },
