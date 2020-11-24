@@ -23,33 +23,6 @@ export default {
       position: this.initPosition,
       hideMore: true, // 点击“更多条件”时，切换的变量
       form: {}, // 表单的数据
-      pickerOptions: { // DateTimePicker的快捷选项
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-            picker.$emit('pick', [start, end])
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-            picker.$emit('pick', [start, end])
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-            picker.$emit('pick', [start, end])
-          }
-        }]
-      },
     }
   },
   computed: {
@@ -144,7 +117,37 @@ export default {
                   this.form[item.value] = value
                 },
                 type: 'datetimerange',
-                ':picker-options': this.pickerOptions,
+                ':picker-options': { // DateTimePicker的快捷选项
+                  shortcuts: [
+                    {
+                      text: '最近一周',
+                      onClick (picker) {
+                        const end = new Date()
+                        const start = new Date()
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+                        picker.$emit('pick', [start, end])
+                      }
+                    },
+                    {
+                      text: '最近一个月',
+                      onClick (picker) {
+                        const end = new Date()
+                        const start = new Date()
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+                        picker.$emit('pick', [start, end])
+                      }
+                    },
+                    {
+                      text: '最近三个月',
+                      onClick (picker) {
+                        const end = new Date()
+                        const start = new Date()
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+                        picker.$emit('pick', [start, end])
+                      }
+                    }
+                  ]
+                },
                 'range-separator': '至',
                 'start-placeholder': '开始日期',
                 'end-placeholder': '结束日期',
