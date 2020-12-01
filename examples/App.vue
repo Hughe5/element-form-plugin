@@ -1,5 +1,5 @@
 <template>
-  <element-form :initItems="items" :initPosition="3" :inline="true" @search="test"></element-form>
+  <element-form :initItems="items" :initPosition="3" @search="test" labelPosition="top"></element-form>
 </template>
 
 <script>
@@ -12,16 +12,6 @@ export default {
           label: '问题描述',
           value: 'value6',
           defaultValue: '9',
-          change: (value) => {
-            console.log(value, 'vlaue')
-            if (value == 6) {
-              const i = this.items.findIndex(e => e.id === 'tt')
-              this.$set(this.items[i], 'isHidden', true)
-            } else {
-              const i = this.items.findIndex(e => e.id === 'tt')
-              this.$set(this.items[i], 'isHidden', false)
-            }
-          },
           prepend: {
             tag: 'Select',
             class: 'my-select',

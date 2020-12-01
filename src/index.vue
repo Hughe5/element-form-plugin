@@ -1,7 +1,8 @@
 <script>
-import { Form, FormItem, DatePicker, Select, Option, Input, Cascader, Button, InputNumber, } from 'element-ui'
-import { isPlainObj, render, } from './utils'
-const { hasOwnProperty } = Object.prototype
+import { Form, FormItem, Button } from 'element-ui'
+import { mixinRender } from './utils'
+import components from './components'
+
 export default {
   name: 'element-form',
   props: {
@@ -16,13 +17,15 @@ export default {
     },
     inline: { // 是否换行
       type: Boolean
+    },
+    labelPosition: {
+      type: String
     }
   },
   data () {
     return {
       position: this.initPosition,
       hideMore: true, // 点击“更多条件”时，切换的变量
-      form: {}, // 表单的数据
     }
   },
   computed: {
@@ -32,20 +35,13 @@ export default {
     canHideMore () { // 是否显示“更多条件”
       return this.position < this.items.length - 1
     },
-    getHandlerByTag () { // 表单项对应的处理器
-      return {
-        'Select': this.handleSelect,
-        'Input': this.handleInput,
-        'Cascader': this.handleCascader,
-      }
-    },
     JSON () { // 用于生成页面的JSON
       return {
         tag: Form,
         attrs: {
           class: 'element-form',
           ':inline': this.inline,
-          ':model': this.form,
+          'label-position': this.labelPosition,
           size: 'small',
           '@submit.native': function (event) { // 只有一个输入框时，阻止在输入框中按下回车提交表单
             event.preventDefault()
@@ -63,7 +59,7 @@ export default {
                   : 'none' // v-show
               }
             },
-            children: this.generateComponentsByTag(item)
+            children: this.genComponentsByTag(item)
           }
           return item.tag === 'Buttons' && this.canHideMore
             ? [ // 表单项后加上操作按钮
@@ -79,7 +75,11 @@ export default {
                   children: [
                     {
                       tag: 'span',
-                      children: '更多条件'
+                      children: [
+                        {
+                          text: '更多条件'
+                        }
+                      ]
                     },
                     {
                       tag: 'i',
@@ -100,202 +100,56 @@ export default {
       }
     }
   },
-  render (h) {
-    return render(h, this.JSON)
-  },
+  mixins: [ mixinRender ],
   methods: {
     // 根据tag生成组件
-    generateComponentsByTag (item) {
-      switch (item.tag) {
-        case 'DateTimePicker':
-          return item.isHidden ? [] : [
-            {
-              tag: DatePicker,
-              attrs: {
-                ':value': this.form[item.value],
-                '@input': (value) => {
-                  this.form[item.value] = value
-                },
-                type: 'datetimerange',
-                ':picker-options': { // DateTimePicker的快捷选项
-                  shortcuts: [
-                    {
-                      text: '最近一周',
-                      onClick (picker) {
-                        const end = new Date()
-                        const start = new Date()
-                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-                        picker.$emit('pick', [start, end])
-                      }
-                    },
-                    {
-                      text: '最近一个月',
-                      onClick (picker) {
-                        const end = new Date()
-                        const start = new Date()
-                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-                        picker.$emit('pick', [start, end])
-                      }
-                    },
-                    {
-                      text: '最近三个月',
-                      onClick (picker) {
-                        const end = new Date()
-                        const start = new Date()
-                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-                        picker.$emit('pick', [start, end])
-                      }
-                    }
-                  ]
-                },
-                'range-separator': '至',
-                'start-placeholder': '开始日期',
-                'end-placeholder': '结束日期',
-                ':clearable': item.defaultValue === undefined,
-                '@change': item.change,
-                slot: item.slot,
-                class: item.class,
-              }
-            }
-          ]
-        case 'Select':
-          return item.isHidden ? [] : [
-            {
-              tag: Select,
-              attrs: {
-                ':value': this.form[item.value],
-                '@input': (value) => {
-                  this.form[item.value] = value
-                },
-                placeholder: '请选择',
-                ':clearable': item.defaultValue === undefined && !item.disclearable,
-                '@change': item.change,
-                slot: item.slot,
-                class: item.class,
-              },
-              children: (item.options || []).map(option => {
-                return {
-                  tag: Option,
-                  attrs: {
-                    ':label': option.label,
-                    ':value': option.value
-                  }
-                }
-              })
-            }
-          ]
-        case 'Cascader':
-          return item.isHidden ? [] : [
-            {
-              tag: Cascader,
-              attrs: {
-                ':value': this.form[item.value],
-                '@input': (value) => {
-                  this.form[item.value] = value
-                },
-                ':options': item.options,
-                ':props': item.props,
-                ':clearable': item.defaultValue === undefined,
-                '@change': item.change,
-                slot: item.slot,
-                class: item.class,
-              }
-            }
-          ]
-        case 'Input':
-          return item.isHidden ? [] : [
-            {
-              tag: Input,
-              attrs: {
-                ':value': this.form[item.value],
-                '@input': (value) => {
-                  this.form[item.value] = value
-                },
-                placeholder: '请输入',
-                ':clearable': item.defaultValue === undefined,
-                '@change': item.change,
-                slot: item.slot,
-                class: item.class,
-              },
-              children: item.prepend && item.prepend.tag === 'Select'
-                ? this.generateComponentsByTag({ ...item.prepend, slot: 'prepend' })
-                : undefined
-            }
-          ]
-        case 'InputNumber':
-          return item.isHidden ? [] : [
-            {
-              tag: InputNumber,
-              attrs: {
-                ':value': this.form[item.value],
-                '@input': (value) => {
-                  this.form[item.value] = value
-                },
-                '@change': item.change,
-                class: item.class,
-                ':min': item.min,
-                ':max': item.max,
-                'controls-position': item.controlsPosition
-              }
-            }
-          ]
-        case 'Buttons':
-          return this.$slots.Buttons || [ // 插槽
-            {
-              tag: Button,
-              attrs: {
-                class: 'button',
-                '@click': this.onSubmit,
-                size: 'small'
-              },
-              children: '查询'
+    genComponentsByTag (item) {
+      if (['Input', 'InputNumber', 'Select', 'Cascader', 'DateTimePicker'].includes(item.tag)) {
+        return [ item.isHidden ? undefined : components[`gen${item.tag}`](item) ]
+      } else if (item.tag === 'Buttons') {
+        return this.$slots.Buttons || [ // 插槽
+          {
+            tag: Button,
+            attrs: {
+              class: 'button',
+              '@click': this.onSubmit,
+              size: 'small'
             },
+            children: [
+              {
+                text: '查询'
+              }
+            ]
+          },
+          {
+            tag: Button,
+            attrs: {
+              class: 'button',
+              '@click': this.onReset,
+              size: 'small'
+            },
+            children: [
+              {
+                text: '重置'
+              }
+            ]
+          }
+        ]
+      }
+      return [
+        {
+          tag: 'span',
+          children: [
             {
-              tag: Button,
-              attrs: {
-                class: 'button',
-                '@click': this.onReset,
-                size: 'small'
-              },
-              children: '重置'
+              text: `暂未支持${item.tag}`
             }
           ]
-        default:
-          return [
-            {
-              tag: 'span',
-              children: `暂未支持${item.tag}`
-            }
-          ]
-      }
-    },
-    handleSelect (item) {
-      if (Array.isArray(item.options)) {
-        // 有“全部”默认选项时没有清空功能
-        item.disclearable = item.options.find(e => e.label === '全部' && e.value === undefined)
-      } else {
-        item.options = [] // options没传或传的不是数组就赋初值
-      }
+        }
+      ]
     },
     // 检查必要的属性
     checkRequiredProp (item) {
       return item.tag && typeof item.tag === 'string' && item.value && typeof item.value === 'string'
-    },
-    // 处理输入框
-    handleInput (item) {
-      if (item.prepend) { // 前置内容
-        this.checkRequiredProp(item.prepend) ? this.handleItem(item.prepend) : delete item.prepend
-      }
-    },
-    // 处理级联
-    handleCascader (item) {
-      if (!isPlainObj(item.props)) {
-        item.props = {}
-      }
-    },
-    // 把表单项绑定的字段加到form上，变成响应式的
-    setReactiveProp (item) {
-      hasOwnProperty.call(this.form, item.value) || this.$set(this.form, item.value, item.defaultValue)
     },
     // 设置change事件的回调
     setChangeCallback (item) {
@@ -305,11 +159,10 @@ export default {
     },
     // 处理表单项
     handleItem (item) {
-      const tag = item.tag
-      const handler = this.getHandlerByTag[tag] // 获取到表单项对应的处理器
-      handler && handler(item) // 有则执行
-      this.setReactiveProp(item)
       this.setChangeCallback(item)
+      if (item.prepend) { // 前置内容
+        this.checkRequiredProp(item.prepend) ? this.handleItem(item.prepend) : delete item.prepend
+      }
     },
     // 处理表单项
     buildItems (items) {
@@ -329,24 +182,27 @@ export default {
     },
     // 获取表单的数据
     getFields () {
-      return this.form
+      const fields = {}
+      const recursion = (node) => {
+        node.$children.forEach(recursion)
+        if (node.theKey) {
+          fields[node.theKey] = node.theValue
+        }
+      }
+      recursion(this)
+      return fields
     },
     // 点击“查询”按钮
     onSubmit () {
       this.$emit('search', this.getFields())
     },
-    // 设置默认值
-    setDefaultVal () {
-      const setVal = item => item.value && this.$set(this.form, item.value, item.defaultValue)
-      for (let item of this.items) {
-        setVal(item)
-        item.prepend && setVal(item.prepend)
-      }
-    },
     // 重置
     resetFields () {
-      this.form = {}
-      this.setDefaultVal()
+      const recursion = (node) => {
+        node.$children.forEach(recursion)
+        node.reset && node.reset()
+      }
+      recursion(this)
     },
     // 点击“重置”按钮
     onReset () {
@@ -363,7 +219,6 @@ export default {
     background: #fff;
     margin-top: 10px;
     margin-bottom: 10px;
-    padding: 10px 10px 0 10px;
   }
   .button {
     background: #fff;
