@@ -1,14 +1,19 @@
 import Vue from 'vue'
 import { Input } from 'element-ui'
-import { mixinData, mixinRender } from '../utils'
+import { renderMixin } from '../utils'
 import genSelect from './Select'
 
-export default function genInput (item) {
+export default function genInput (options) {
   return Vue.component('Input', {
-    mixins: [ mixinData, mixinRender ],
+    mixins: [ renderMixin ],
+    data () {
+      return {
+        theValue: ''
+      }
+    },
     computed: {
       theKey () {
-        return item.value
+        return options.value
       },
       JSON () {
         return {
@@ -19,25 +24,25 @@ export default function genInput (item) {
               this.theValue = value
             },
             placeholder: '请输入',
-            ':clearable': item.defaultValue === undefined,
-            '@change': item.change,
-            slot: item.slot,
-            class: item.class,
+            ':clearable': options.defaultValue === undefined,
+            '@change': options.change,
+            slot: options.slot,
+            class: options.class,
           },
-          children: item.prepend && item.prepend.tag === 'Select'
-            ? [ genSelect({ ...item.prepend, slot: 'prepend' }) ]
+          children: options.prepend && options.prepend.tag === 'Select'
+            ? [ genSelect({ ...options.prepend, slot: 'prepend' }) ]
             : []
         }
       }
     },
     mounted () {
-      if (item.defaultValue !== undefined) {
-        this.theValue = item.defaultValue
+      if (options.defaultValue !== undefined) {
+        this.theValue = options.defaultValue
       }
     },
     methods: {
       reset () {
-        this.theValue = item.defaultValue
+        this.theValue = options.defaultValue
       }
     }
   })

@@ -1,13 +1,18 @@
 import Vue from 'vue'
 import { DatePicker } from 'element-ui'
-import { mixinData, mixinRender } from '../utils'
+import { renderMixin } from '../utils'
 
-export default function genDateTimePicker (item) {
+export default function genDateTimePicker (options) {
   return Vue.component('DateTimePicker', {
-    mixins: [ mixinData, mixinRender ],
+    mixins: [ renderMixin ],
+    data () {
+      return {
+        theValue: ''
+      }
+    },
     computed: {
       theKey () {
-        return item.value
+        return options.value
       },
       JSON () {
         return {
@@ -52,22 +57,22 @@ export default function genDateTimePicker (item) {
             'range-separator': '至',
             'start-placeholder': '开始日期',
             'end-placeholder': '结束日期',
-            ':clearable': item.defaultValue === undefined,
-            '@change': item.change,
-            slot: item.slot,
-            class: item.class,
+            ':clearable': options.defaultValue === undefined,
+            '@change': options.change,
+            slot: options.slot,
+            class: options.class,
           }
         }
       }
     },
     mounted () {
-      if (item.defaultValue !== undefined) {
-        this.theValue = item.defaultValue
+      if (options.defaultValue !== undefined) {
+        this.theValue = options.defaultValue
       }
     },
     methods: {
       reset () {
-        this.theValue = item.defaultValue
+        this.theValue = options.defaultValue
       }
     }
   })

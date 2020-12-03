@@ -1,13 +1,18 @@
 import Vue from 'vue'
 import { Cascader } from 'element-ui'
-import { mixinData, mixinRender } from '../utils'
+import { renderMixin } from '../utils'
 
-export default function genCascader (item) {
+export default function genCascader (options) {
   return Vue.component('Cascader', {
-    mixins: [ mixinData, mixinRender ],
+    mixins: [ renderMixin ],
+    data () {
+      return {
+        theValue: ''
+      }
+    },
     computed: {
       theKey () {
-        return item.value
+        return options.value
       },
       JSON () {
         return {
@@ -17,24 +22,24 @@ export default function genCascader (item) {
             '@input': (value) => {
               this.theValue = value
             },
-            ':options': item.options,
-            ':props': item.props,
-            ':clearable': item.defaultValue === undefined,
-            '@change': item.change,
-            slot: item.slot,
-            class: item.class,
+            ':options': options.options,
+            ':props': options.props,
+            ':clearable': options.defaultValue === undefined,
+            '@change': options.change,
+            slot: options.slot,
+            class: options.class,
           }
         }
       }
     },
     mounted () {
-      if (item.defaultValue !== undefined) {
-        this.theValue = item.defaultValue
+      if (options.defaultValue !== undefined) {
+        this.theValue = options.defaultValue
       }
     },
     methods: {
       reset () {
-        this.theValue = item.defaultValue
+        this.theValue = options.defaultValue
       }
     }
   })

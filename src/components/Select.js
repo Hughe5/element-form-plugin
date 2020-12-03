@@ -1,13 +1,18 @@
 import Vue from 'vue'
 import { Select, Option } from 'element-ui'
-import { mixinData, mixinRender } from '../utils'
+import { renderMixin } from '../utils'
 
-export default function genSelect (item) {
+export default function genSelect (options) {
   return Vue.component('Select', {
-    mixins: [ mixinData, mixinRender ],
+    mixins: [ renderMixin ],
+    data () {
+      return {
+        theValue: ''
+      }
+    },
     computed: {
       theKey () {
-        return item.value
+        return options.value
       },
       JSON () {
         return {
@@ -18,12 +23,12 @@ export default function genSelect (item) {
               this.theValue = value
             },
             placeholder: '请选择',
-            ':clearable': item.defaultValue === undefined && !(item.options || []).find(e => e.label === '全部' && e.value === undefined),
-            '@change': item.change,
-            slot: item.slot,
-            class: item.class,
+            ':clearable': options.defaultValue === undefined && !(options.options || []).find(e => e.label === '全部' && e.value === undefined),
+            '@change': options.change,
+            slot: options.slot,
+            class: options.class,
           },
-          children: (item.options || []).map(option => {
+          children: (options.options || []).map(option => {
             return {
               tag: Option,
               attrs: {
@@ -36,13 +41,13 @@ export default function genSelect (item) {
       }
     },
     mounted () {
-      if (item.defaultValue !== undefined) {
-        this.theValue = item.defaultValue
+      if (options.defaultValue !== undefined) {
+        this.theValue = options.defaultValue
       }
     },
     methods: {
       reset () {
-        this.theValue = item.defaultValue
+        this.theValue = options.defaultValue
       }
     }
   })

@@ -1,13 +1,18 @@
 import Vue from 'vue'
 import { InputNumber } from 'element-ui'
-import { mixinData, mixinRender } from '../utils'
+import { renderMixin } from '../utils'
 
-export default function genInputNumber (item) {
+export default function genInputNumber (options) {
   return Vue.component('InputNumber', {
-    mixins: [ mixinData, mixinRender ],
+    mixins: [ renderMixin ],
+    data () {
+      return {
+        theValue: ''
+      }
+    },
     computed: {
       theKey () {
-        return item.value
+        return options.value
       },
       JSON () {
         return {
@@ -17,23 +22,23 @@ export default function genInputNumber (item) {
             '@input': (value) => {
               this.theValue = value
             },
-            '@change': item.change,
-            class: item.class,
-            ':min': item.min,
-            ':max': item.max,
-            'controls-position': item.controlsPosition
+            '@change': options.change,
+            class: options.class,
+            ':min': options.min,
+            ':max': options.max,
+            'controls-position': options.controlsPosition
           }
         }
       }
     },
     mounted () {
-      if (item.defaultValue !== undefined) {
-        this.theValue = item.defaultValue
+      if (options.defaultValue !== undefined) {
+        this.theValue = options.defaultValue
       }
     },
     methods: {
       reset () {
-        this.theValue = item.defaultValue
+        this.theValue = options.defaultValue
       }
     }
   })

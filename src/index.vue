@@ -1,6 +1,6 @@
 <script>
 import { Form, FormItem, Button } from 'element-ui'
-import { mixinRender } from './utils'
+import { renderMixin } from './utils'
 import components from './components'
 
 export default {
@@ -100,7 +100,7 @@ export default {
       }
     }
   },
-  mixins: [ mixinRender ],
+  mixins: [ renderMixin ],
   methods: {
     // 根据tag生成组件
     genComponentsByTag (item) {

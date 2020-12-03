@@ -2,30 +2,30 @@ const { assign, entries } = Object
 const { toString, hasOwnProperty } = Object.prototype
 const R = require('ramda')
 
-function isPlainObj (val) {
+const isPlainObj = (val) => {
   return toString.call(val) === '[object Object]'
 }
 
-function isAST (el) {
+const isAST = (el) => {
   return el.constructor.name === 'VNode'
 }
 
-function isComponent (el) {
+const isComponent = (el) => {
   return el.name === 'VueComponent'
 }
 
 // 删除前缀
-function deletePrefix (str, prefix) {
+const deletePrefix = (str, prefix) => {
   const reg = RegExp(`^${prefix}`)
   return str.replace(reg, '')
 }
 
 // 删除后缀
-function deleteSuffix (str, suffix) {
+const deleteSuffix = (str, suffix) => {
   return str.replace(suffix, '')
 }
 
-function JSON2AST (JSON = {}) {
+const JSON2AST = (JSON = {}) => {
 
   if (isAST(JSON) || isComponent(JSON)) return JSON
 
@@ -43,81 +43,70 @@ function JSON2AST (JSON = {}) {
     text
   }
 
-  const handlers = {
-    translateBind ([key, value]) {
-      key = deletePrefix(key, ':')
-      // v-bind放到props里，兼容AST.data.props为undefined的情况
-      AST.data.props = assign({}, AST.data.props, { [key]: value })
-    },
-    translateNativeOn ([key, value]) {
-      key = deletePrefix(key, '@')
-      key = deleteSuffix(key, '.native')
-      // 原生事件放到nativeOn里
-      AST.data.nativeOn = assign({}, AST.data.nativeOn, { [key]: value })
-    },
-    translateOn ([key, value]) {
-      key = deletePrefix(key, '@')
-      // 其他事件放到on里
-      AST.data.on = assign({}, AST.data.on, { [key]: value })
-    },
-    translateCommon ([key, value]) { // class style slot
-      AST.data[key] = value
-    },
-    translateOthers ([key, value]) {
-      AST.data.attrs = assign({}, AST.data.attrs, { [key]: value })
-    }
+  const handleBind = (key, value) => {
+    key = deletePrefix(key, ':')
+    AST.data.props = assign({}, AST.data.props, { [key]: value }) // v-bind放到props里，兼容AST.data.props为undefined的情况
+  }
+
+  const handleNativeOn = (key, value) => {
+    key = deleteSuffix(key, '.native')
+    AST.data.nativeOn = assign({}, AST.data.nativeOn, { [key]: value })
+  }
+
+  const handleCommonOn = (key, value) => {
+    AST.data.on = assign({}, AST.data.on, { [key]: value })
+  }
+
+  const handleOn = (key, value) => {
+    key = deletePrefix(key, '@')
+    const fn = R.cond([
+      [key => key.includes('.native'), handleNativeOn],
+      [R.T,                            handleCommonOn]
+    ])
+    fn(key, value)
+  }
+
+  const handleCommon = (key, value) => {
+    AST.data[key] = value
+  }
+
+  const handleOthers = (key, value) => {
+    AST.data.attrs = assign({}, AST.data.attrs, { [key]: value })
   }
 
   const fn = R.cond([
-    [([key]) => key.startsWith(':'),                             handlers.translateBind],
-    [([key]) => key.startsWith('@') && key.includes('.native'),  handlers.translateNativeOn],
-    [([key]) => key.startsWith('@') && !key.includes('.native'), handlers.translateOn],
-    [([key]) => ['class', 'style', 'slot', 'ref'].includes(key), handlers.translateCommon],
-    [R.T,                                                        handlers.translateOthers]
+    [key => key.startsWith(':'),                             handleBind],
+    [key => key.startsWith('@'),                             handleOn],
+    [key => ['class', 'style', 'slot', 'ref'].includes(key), handleCommon],
+    [R.T,                                                    handleOthers]
   ])
 
-  for (let attr of entries(attrs)) {
-    fn(attr)
+  for (let [key, value] of entries(attrs)) {
+    fn(key, value)
   }
 
   return AST
 }
 
-function render (h, JSON) {
+const renderMixin = {
 
-  // 递归
-  const handler = ({ tag, data, children = [] } = {}) => {
-
-    const fn = R.cond([
-      [child => child.tag,                      handler],
-      [child => isComponent(child),             child => handler({tag: child})],
-      [child => child.text && !child.isComment, child => child.text]
-    ])
-
-    return h(
-      tag,
-      data,
-      children.map(fn)
-    )
-  }
-
-  const AST = JSON2AST(JSON)
-
-  return handler(AST)
-}
-
-const mixinData = {
-  data () {
-    return {
-      theValue: ''
-    }
-  }
-}
-
-const mixinRender = {
   render (h) {
-    return render(h, this.JSON)
+
+    const handler = ({ tag, data, children = [] } = {}) => {
+
+      const fn = R.cond([
+        [child => child.tag,                      handler],
+        [child => isComponent(child),             child => handler({ tag: child })],
+        [child => child.text && !child.isComment, child => child.text]
+      ])
+
+      return h(tag, data, children.map(fn))
+    }
+
+    const AST = JSON2AST(this.JSON)
+
+    return handler(AST)
   }
 }
 
-export { isPlainObj, mixinData, mixinRender }
+export { isPlainObj, renderMixin }
