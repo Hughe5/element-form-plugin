@@ -3,7 +3,7 @@ import { InputNumber } from 'element-ui'
 import { renderMixin } from '../utils'
 
 export default function genInputNumber (options) {
-  return Vue.component('InputNumber', {
+  const component = Vue.component('InputNumber', {
     mixins: [ renderMixin ],
     data () {
       return {
@@ -42,4 +42,6 @@ export default function genInputNumber (options) {
       }
     }
   })
+  component.isComponent = true
+  return component
 }

@@ -4,7 +4,7 @@ import { renderMixin } from '../utils'
 import genSelect from './Select'
 
 export default function genInput (options) {
-  return Vue.component('Input', {
+  const component = Vue.component('Input', {
     mixins: [ renderMixin ],
     data () {
       return {
@@ -46,4 +46,6 @@ export default function genInput (options) {
       }
     }
   })
+  component.isComponent = true
+  return component
 }

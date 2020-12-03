@@ -3,7 +3,7 @@ import { Select, Option } from 'element-ui'
 import { renderMixin } from '../utils'
 
 export default function genSelect (options) {
-  return Vue.component('Select', {
+  const component = Vue.component('Select', {
     mixins: [ renderMixin ],
     data () {
       return {
@@ -51,4 +51,6 @@ export default function genSelect (options) {
       }
     }
   })
+  component.isComponent = true
+  return component
 }

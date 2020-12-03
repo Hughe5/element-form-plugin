@@ -11,7 +11,7 @@ const isAST = (el) => {
 }
 
 const isComponent = (el) => {
-  return el.name === 'VueComponent'
+  return el.isComponent
 }
 
 // 删除前缀

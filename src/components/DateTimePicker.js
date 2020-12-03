@@ -3,7 +3,7 @@ import { DatePicker } from 'element-ui'
 import { renderMixin } from '../utils'
 
 export default function genDateTimePicker (options) {
-  return Vue.component('DateTimePicker', {
+  const component = Vue.component('DateTimePicker', {
     mixins: [ renderMixin ],
     data () {
       return {
@@ -76,4 +76,6 @@ export default function genDateTimePicker (options) {
       }
     }
   })
+  component.isComponent = true
+  return component
 }

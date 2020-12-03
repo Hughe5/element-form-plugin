@@ -3,7 +3,7 @@ import { Cascader } from 'element-ui'
 import { renderMixin } from '../utils'
 
 export default function genCascader (options) {
-  return Vue.component('Cascader', {
+  const component = Vue.component('Cascader', {
     mixins: [ renderMixin ],
     data () {
       return {
@@ -43,4 +43,6 @@ export default function genCascader (options) {
       }
     }
   })
+  component.isComponent = true
+  return component
 }
