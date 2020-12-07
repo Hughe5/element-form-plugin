@@ -2,6 +2,11 @@ import Vue from 'vue'
 import { Input } from 'element-ui'
 import { renderMixin } from '../utils'
 import genSelect from './Select'
+const R = require('ramda')
+
+const fn = R.cond([
+  [JSON => JSON.tag === 'Select', genSelect]
+])
 
 export default function genInput (options) {
   const component = Vue.component('Input', {
@@ -26,11 +31,18 @@ export default function genInput (options) {
             placeholder: '请输入',
             ':clearable': options.defaultValue === undefined,
             '@change': options.change,
-            slot: options.slot,
             class: options.class,
           },
-          children: options.prepend && options.prepend.tag === 'Select'
-            ? [ genSelect({ ...options.prepend, slot: 'prepend' }) ]
+          children: options.prepend
+            ? [
+                {
+                  tag: 'div',
+                  attrs: {
+                    slot: 'prepend'
+                  },
+                  children: [ fn(options.prepend) ]
+                }
+              ]
             : []
         }
       }

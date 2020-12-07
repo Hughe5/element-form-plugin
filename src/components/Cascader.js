@@ -26,7 +26,6 @@ export default function genCascader (options) {
             ':props': options.props,
             ':clearable': options.defaultValue === undefined,
             '@change': options.change,
-            slot: options.slot,
             class: options.class,
           }
         }

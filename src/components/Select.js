@@ -25,7 +25,6 @@ export default function genSelect (options) {
             placeholder: '请选择',
             ':clearable': options.defaultValue === undefined && !(options.options || []).find(e => e.label === '全部' && e.value === undefined),
             '@change': options.change,
-            slot: options.slot,
             class: options.class,
           },
           children: (options.options || []).map(option => {

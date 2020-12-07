@@ -59,7 +59,6 @@ export default function genDateTimePicker (options) {
             'end-placeholder': '结束日期',
             ':clearable': options.defaultValue === undefined,
             '@change': options.change,
-            slot: options.slot,
             class: options.class,
           }
         }
