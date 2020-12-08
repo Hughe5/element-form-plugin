@@ -151,15 +151,8 @@ export default {
     checkRequiredProp (item) {
       return item.tag && typeof item.tag === 'string' && item.value && typeof item.value === 'string'
     },
-    // 设置change事件的回调
-    setChangeCallback (item) {
-      if (typeof item.change !== 'function') {
-        item.change = function () {}
-      }
-    },
     // 处理表单项
     handleItem (item) {
-      this.setChangeCallback(item)
       if (item.prepend) { // 前置内容
         this.checkRequiredProp(item.prepend) ? this.handleItem(item.prepend) : delete item.prepend
       }

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { DatePicker } from 'element-ui'
-import { renderMixin } from '../utils'
+import { isFunction, renderMixin } from '../utils'
 
 export default function genDateTimePicker (options) {
   const component = Vue.component('DateTimePicker', {
@@ -58,7 +58,7 @@ export default function genDateTimePicker (options) {
             'start-placeholder': '开始日期',
             'end-placeholder': '结束日期',
             ':clearable': options.defaultValue === undefined,
-            '@change': options.change,
+            '@change': isFunction(options.change) ? options.change : function () {},
             class: options.class,
           }
         }

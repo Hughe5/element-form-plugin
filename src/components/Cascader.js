@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { Cascader } from 'element-ui'
-import { renderMixin } from '../utils'
+import { isFunction, renderMixin } from '../utils'
 
 export default function genCascader (options) {
   const component = Vue.component('Cascader', {
@@ -25,7 +25,7 @@ export default function genCascader (options) {
             ':options': options.options,
             ':props': options.props,
             ':clearable': options.defaultValue === undefined,
-            '@change': options.change,
+            '@change': isFunction(options.change) ? options.change : function () {},
             class: options.class,
           }
         }

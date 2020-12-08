@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { InputNumber } from 'element-ui'
-import { renderMixin } from '../utils'
+import { isFunction, renderMixin } from '../utils'
 
 export default function genInputNumber (options) {
   const component = Vue.component('InputNumber', {
@@ -22,7 +22,7 @@ export default function genInputNumber (options) {
             '@input': (value) => {
               this.theValue = value
             },
-            '@change': options.change,
+            '@change': isFunction(options.change) ? options.change : function () {},
             class: options.class,
             ':min': options.min,
             ':max': options.max,

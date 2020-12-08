@@ -6,6 +6,10 @@ const isPlainObj = (val) => {
   return toString.call(val) === '[object Object]'
 }
 
+const isFunction = (val) => {
+  return toString.call(val) === '[object Function]'
+}
+
 const isAST = (el) => {
   return el.constructor.name === 'VNode'
 }
@@ -109,4 +113,4 @@ const renderMixin = {
   }
 }
 
-export { isPlainObj, renderMixin }
+export { isPlainObj, isFunction, renderMixin }

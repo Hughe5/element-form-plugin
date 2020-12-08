@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { Input } from 'element-ui'
-import { renderMixin } from '../utils'
+import { isFunction, renderMixin } from '../utils'
 import genSelect from './Select'
 const R = require('ramda')
 
@@ -30,7 +30,7 @@ export default function genInput (options) {
             },
             placeholder: '请输入',
             ':clearable': options.defaultValue === undefined,
-            '@change': options.change,
+            '@change': isFunction(options.change) ? options.change : function () {},
             class: options.class,
           },
           children: options.prepend
