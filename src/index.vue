@@ -147,20 +147,8 @@ export default {
         }
       ]
     },
-    // 检查必要的属性
-    checkRequiredProp (item) {
-      return item.tag && typeof item.tag === 'string' && item.value && typeof item.value === 'string'
-    },
-    // 处理表单项
-    handleItem (item) {
-      if (item.prepend) { // 前置内容
-        this.checkRequiredProp(item.prepend) ? this.handleItem(item.prepend) : delete item.prepend
-      }
-    },
     // 处理表单项
     buildItems (items) {
-      items = items.filter(this.checkRequiredProp) // 过滤掉没有必要属性的表单项
-      items.forEach(this.handleItem)
       this.addButtons(items)
       return items
     },
