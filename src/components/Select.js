@@ -22,7 +22,7 @@ export default function genSelect (options) {
             '@input': (value) => {
               this.theValue = value
             },
-            placeholder: item.placeholder,
+            placeholder: options.placeholder,
             ':clearable': options.defaultValue === undefined && !(options.options || []).find(e => e.label === '全部' && e.value === undefined),
             '@change': isFunction(options.change) ? options.change : function () {},
             class: options.class,

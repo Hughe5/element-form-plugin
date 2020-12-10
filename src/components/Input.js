@@ -5,10 +5,14 @@ import genSelect from './Select'
 const R = require('ramda')
 
 const fn = R.cond([
-  [JSON => JSON.tag === 'Select', genSelect]
+  [
+    JSON => JSON.tag === 'Select',
+    genSelect
+  ]
 ])
 
 export default function genInput (options) {
+  const prepend = options.prepend && fn(options.prepend)
   const component = Vue.component('Input', {
     mixins: [ renderMixin ],
     data () {
@@ -33,14 +37,14 @@ export default function genInput (options) {
             '@change': isFunction(options.change) ? options.change : function () {},
             class: options.class,
           },
-          children: options.prepend
+          children: prepend
             ? [
                 {
                   tag: 'div',
                   attrs: {
                     slot: 'prepend'
                   },
-                  children: [ fn(options.prepend) ]
+                  children: [ prepend ]
                 }
               ]
             : []
