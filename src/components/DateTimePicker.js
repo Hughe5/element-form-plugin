@@ -65,9 +65,7 @@ export default function genDateTimePicker (options) {
       }
     },
     mounted () {
-      if (options.defaultValue !== undefined) {
-        this.theValue = options.defaultValue
-      }
+      this.theValue = options.defaultValue
     },
     methods: {
       reset () {
