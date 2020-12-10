@@ -55,8 +55,8 @@ export default function genDateTimePicker (options) {
               ]
             },
             'range-separator': '至',
-            'start-placeholder': '开始日期',
-            'end-placeholder': '结束日期',
+            'start-placeholder': options.startPlaceholder,
+            'end-placeholder': options.endPlaceholder,
             ':clearable': options.defaultValue === undefined,
             '@change': isFunction(options.change) ? options.change : function () {},
             class: options.class,
